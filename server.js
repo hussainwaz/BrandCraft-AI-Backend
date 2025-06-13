@@ -8,9 +8,14 @@ const port = process.env.PORT || 1000;
 
 // Enhanced CORS configuration
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: [
+    process.env.FRONTEND_URL, 
+    'http://localhost:3000',
+    'http://localhost:5173'  // Add your Vite dev server origin
+  ],
   optionsSuccessStatus: 200
 };
+app.use(cors(corsOptions));
 app.use(cors(corsOptions));
 app.use(express.json());
 
