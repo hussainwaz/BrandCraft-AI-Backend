@@ -28,45 +28,64 @@ const openai = new OpenAI({
 app.post('/api/brand-style', async (req, res) => {
     const { niche, tone } = req.body;
     
-    // Generate two different options
-    const prompt = `Suggest TWO distinct font pairings (header + body) and color palettes for a brand in the "${niche}" industry with a "${tone}" tone.
+    const prompt = `Suggest THREE distinct color palettes and font pairings for a brand in the "${niche}" industry with a "${tone}" tone.
     Respond in JSON format with this exact structure:
     {
-      "options": [
+      "colorPalettes": [
         {
-          "name": "Option 1 - [Brief descriptive name]",
-          "fonts": {
-            "header": {
-              "name": "Font Name",
-              "description": "Font description",
-              "source": "Where to get it"
-            },
-            "body": {
-              "name": "Font Name",
-              "description": "Font description",
-              "source": "Where to get it"
-            }
-          },
-          "colors": [
-            {
-              "name": "Color Name",
-              "value": "#HEXCODE",
-              "description": "Color usage suggestion"
-            }
-          ],
-          "usageGuidelines": "How to use these elements together",
-          "rationale": "Why this combination works well"
+          "id": "1",
+          "name": "Descriptive name",
+          "colors": {
+            "primary": "#HEXCODE",
+            "secondary": "#HEXCODE",
+            "accent": "#HEXCODE",
+            "background": "#HEXCODE",
+            "text": "#HEXCODE"
+          }
         },
         {
-          "name": "Option 2 - [Brief descriptive name]",
-          "fonts": { ... },
-          "colors": [ ... ],
-          "usageGuidelines": "...",
-          "rationale": "..."
+          "id": "2",
+          "name": "Descriptive name",
+          "colors": { ... }
+        },
+        {
+          "id": "3",
+          "name": "Descriptive name",
+          "colors": { ... }
+        }
+      ],
+      "fontPairings": [
+        {
+          "id": "1",
+          "name": "Descriptive name",
+          "heading": {
+            "name": "Font Name",
+            "family": "Font Name, sans-serif",
+            "weight": "400-900"
+          },
+          "body": {
+            "name": "Font Name",
+            "family": "Font Name, sans-serif",
+            "weight": "400-900"
+          }
+        },
+        {
+          "id": "2",
+          "name": "Descriptive name",
+          "heading": { ... },
+          "body": { ... }
+        },
+        {
+          "id": "3",
+          "name": "Descriptive name",
+          "heading": { ... },
+          "body": { ... }
         }
       ]
     }
-    Each option should include exactly 5 colors in the palette. Make the two options visually and conceptually distinct.`;
+    Each color palette should include exactly 5 colors (primary, secondary, accent, background, text).
+    Each font pairing should include a heading and body font with proper font-family syntax.
+    Make the three options visually and conceptually distinct.`;
 
     try {
         const completion = await openai.chat.completions.create({
@@ -84,9 +103,11 @@ app.post('/api/brand-style', async (req, res) => {
 
             brandStyles = JSON.parse(rawContent);
 
-            // Validate we got two options
-            if (!brandStyles.options || brandStyles.options.length !== 2) {
-                throw new Error("AI didn't return two options");
+            // Validate we got the expected structure
+            if (!brandStyles.colorPalettes || !brandStyles.fontPairings || 
+                brandStyles.colorPalettes.length !== 3 || 
+                brandStyles.fontPairings.length !== 3) {
+                throw new Error("AI didn't return the expected format");
             }
 
             res.json(brandStyles);
